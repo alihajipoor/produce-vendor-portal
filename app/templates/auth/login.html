@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+<style>
+  body {
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: #0b1220;
+    color: #e8eefc;
+    margin: 0;
+  }
+
+  .wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: #111a2e;
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 20px;
+    padding: 28px 28px 24px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+
+  h1 {
+    font-size: 22px;
+    margin: 0 0 6px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 22px;
+    opacity: .75;
+    font-size: 14px;
+  }
+
+label {
+  display: block;
+  font-size: 13px;
+  margin: 0;
+  opacity: .85;
+}
+
+
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.08);
+    background: #0b1220;
+    color: #e8eefc;
+    font-size: 14px;
+    transition: border .2s ease;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #3b82f6;
+  }
+
+  button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 13px 14px;
+    border: 0;
+    border-radius: 14px;
+    background: #3b82f6;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform .05s ease, filter .2s ease;
+  }
+
+  button:hover {
+    filter: brightness(1.05);
+  }
+
+  button:active {
+    transform: scale(0.98);
+  }
+
+  .msg {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.05);
+    font-size: 13px;
+  }
+
+  .error {
+    border-left: 3px solid #ef4444;
+  }
+
+  .hint {
+    margin-top: 18px;
+    font-size: 12px;
+    opacity: .55;
+    text-align: center;
+  }
+
+  form {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+label {
+  margin: 0;
+}
+
+input {
+  box-sizing: border-box;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.10);
+}
+
+input:hover {
+  border-color: rgba(255,255,255,.18);
+}
+
+input:focus {
+  background: rgba(255,255,255,.04);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59,130,246,.18);
+}
+
+</style>
+
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Produce Vendor Portal</h1>
+      <p>Sign in with your username and password.</p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="msg {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="post" action="/login" autocomplete="off">
+  <div class="field">
+    <label for="username">Username</label>
+    <input id="username" name="username" placeholder="e.g. admin" required />
+  </div>
+
+  <div class="field">
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" placeholder="••••••" required />
+  </div>
+
+  <button type="submit">Login</button>
+</form>
+
+
+      <div class="hint">
+        Dev bootstrap: first login is <b>admin</b> / <b>admin123</b>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

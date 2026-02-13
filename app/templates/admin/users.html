@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin · Users</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:#0b1220; color:#e8eefc; }
+    header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,.08); background:#111a2e; }
+    a { color:#93c5fd; text-decoration:none; }
+    .wrap { padding:20px; max-width:1100px; margin:0 auto; display:grid; gap:16px; }
+    .card { background:#111a2e; border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:16px; }
+    h1 { font-size:18px; margin:0; }
+    .sub { opacity:.75; font-size:13px; margin-top:4px; }
+    .topnav { display:flex; gap:12px; align-items:center; }
+    form { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; }
+    @media (max-width: 900px) { form { grid-template-columns: 1fr; } }
+    label { display:block; font-size:12px; opacity:.8; margin:0 0 6px; }
+    input, select { width:100%; box-sizing:border-box; padding:12px 14px; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.03); color:#e8eefc; }
+    input:focus, select:focus { outline:none; border-color:#3b82f6; box-shadow:0 0 0 4px rgba(59,130,246,.18); }
+    button { padding:12px 14px; border-radius:14px; border:0; background:#3b82f6; color:white; font-weight:600; cursor:pointer; }
+    button:active { transform: scale(0.98); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { text-align:left; padding:12px 10px; border-bottom:1px solid rgba(255,255,255,.06); font-size:14px; vertical-align:top; }
+    th { font-size:12px; opacity:.75; text-transform:uppercase; letter-spacing:.06em; }
+    .chip { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.04); }
+    .chip.off { opacity:.55; }
+    .flash { margin-bottom:10px; padding:10px 12px; border-radius:12px; background:rgba(255,255,255,.05); font-size:13px; }
+    .success { border-left:3px solid #22c55e; }
+    .error { border-left:3px solid #ef4444; }
+    .hint { opacity:.65; font-size:12px; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Admin · Users</h1>
+      <div class="sub">Create store/vendor users and assign roles.</div>
+    </div>
+    <div class="topnav">
+      <a href="/admin/vendors">Vendors</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/logout">Logout</a>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="card">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="post">
+        <div>
+          <label for="username">Username</label>
+          <input id="username" name="username" placeholder="e.g. salad1" required />
+          <div class="hint">Lowercase, short, no spaces.</div>
+        </div>
+
+        <div>
+          <label for="password">Temporary password</label>
+          <input id="password" name="password" placeholder="e.g. cut123" required />
+          <div class="hint">Admin can reset later.</div>
+        </div>
+
+        <div>
+          <label for="role">Role</label>
+          <select id="role" name="role" required>
+            <option value="store_admin">Store Admin</option>
+            <option value="store_staff">Store Staff</option>
+            <option value="vendor_user">Vendor User</option>
+          </select>
+          <div class="hint">Vendor users must be assigned to a vendor.</div>
+        </div>
+
+        <div>
+          <label for="vendor_id">Vendor (only for vendor users)</label>
+          <select id="vendor_id" name="vendor_id">
+            <option value="">—</option>
+            {% for v in vendors %}
+              <option value="{{ v.id }}">{{ v.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="grid-column: 1 / -1;">
+          <button type="submit">Create User</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Vendor</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td><b>{{ u.username }}</b></td>
+              <td><span class="chip">{{ u.role }}</span></td>
+              <td>
+                {% if u.vendor %}
+                  {{ u.vendor.name }}
+                {% else %}
+                  <span style="opacity:.6;">—</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.is_active %}
+                  <span class="chip">Active</span>
+                {% else %}
+                  <span class="chip off">Disabled</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="4" style="opacity:.7;">No users found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const roleSel = document.getElementById("role");
+    const vendorSel = document.getElementById("vendor_id");
+
+    function syncVendorRequired() {
+      const isVendor = roleSel.value === "vendor_user";
+      vendorSel.required = isVendor;
+      vendorSel.style.opacity = isVendor ? "1" : "0.75";
+    }
+    roleSel.addEventListener("change", syncVendorRequired);
+    syncVendorRequired();
+  </script>
+</body>
+</html>
